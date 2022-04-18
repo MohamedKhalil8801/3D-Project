@@ -1,17 +1,22 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Room : MonoBehaviour
 {
     
     public GameObject Door;
+
     public GameObject Wall_F;
     public GameObject Wall_B;
     public GameObject Wall_L;
     public GameObject Wall_R;
 
+    private List<GameObject> doors = new List<GameObject>();
+
     public Room PrevRoom;
     public RoomType Entrance;
 
+    private RoomGenerator roomGenerator;
     private RoomType roomType;
     bool canSpawn = true;
 
@@ -20,6 +25,11 @@ public class Room : MonoBehaviour
         roomType = type;
         transform.name = "Room " + roomType;
         ConfigureRoomType(roomType);
+    }
+
+    private void Start()
+    {
+        roomGenerator = transform.parent.GetComponent<RoomGenerator>();
     }
 
     private void Update()
@@ -41,88 +51,79 @@ public class Room : MonoBehaviour
         switch (type)
         {
             case RoomType.F:
-                ReplaceWallWithDoor(Door, Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_F);
                 break;
             case RoomType.B:
-                ReplaceWallWithDoor(Door, Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_B);
                 break;
             case RoomType.L:
-                ReplaceWallWithDoor(Door, Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_L);
                 break;
             case RoomType.R:
-                ReplaceWallWithDoor(Door, Wall_R);
+                ReplaceWallWithDoor(Door, ref Wall_R);
                 break;
             case RoomType.FB:
-                ReplaceWallWithDoor(Door, Wall_F, Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_B);
                 break;
             case RoomType.FL:
-                ReplaceWallWithDoor(Door, Wall_F, Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_L);
                 break;
             case RoomType.FR:
-                ReplaceWallWithDoor(Door, Wall_F, Wall_R);
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_R);
                 break;
             case RoomType.BL:
-                ReplaceWallWithDoor(Door, Wall_B, Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_L);
                 break;
             case RoomType.BR:
-                ReplaceWallWithDoor(Door, Wall_B, Wall_R);
+                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_R);
                 break;
             case RoomType.LR:
-                ReplaceWallWithDoor(Door, Wall_L, Wall_R);
+                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_R);
                 break;
             default:
                 break;
         }
     }
 
-    private void ReplaceWallWithDoor(GameObject door, params GameObject[] walls)
+    private void ReplaceWallWithDoor(GameObject door, ref GameObject wall)
     {
-        foreach (GameObject wall in walls)
-        {
-            string name = wall.name;
-            Vector3 pos = wall.transform.position;
-            Quaternion rot = wall.transform.rotation;
-            Instantiate(door, pos, rot, gameObject.transform).name = name;
-            Destroy(wall);
-        }
+        string name = wall.name;
+        Vector3 pos = wall.transform.position;
+        Quaternion rot = wall.transform.rotation;
+        RoomType type = wall.GetComponent<Door>().Type;
+        Destroy(wall);
+        wall = Instantiate(door, pos, rot, gameObject.transform);
+        wall.name = name;
+        wall.GetComponent<Door>().Type = type;
+        doors.Add(wall);
     }
 
-    private void SpawnNextRoom()
+    public void SpawnNextRoom()
     {
-        if (!Wall_F)
+        int countFalse = 0;
+        foreach (GameObject door in doors)
         {
-            GameObject.FindObjectOfType<RoomGenerator>().SpawnNextRoom(RoomType.F, this, transform.position);
-            canSpawn = false;
-        }
-        if (!Wall_B)
-        {
-            GameObject.FindObjectOfType<RoomGenerator>().SpawnNextRoom(RoomType.B, this, transform.position);
-            canSpawn = false;
-        }
-        if (!Wall_L)
-        {
-            GameObject.FindObjectOfType<RoomGenerator>().SpawnNextRoom(RoomType.L, this, transform.position);
-            canSpawn = false;
-        }
-        if (!Wall_R)
-        {
-            GameObject.FindObjectOfType<RoomGenerator>().SpawnNextRoom(RoomType.R, this, transform.position);
-            canSpawn = false;
-        }
-    }
-
-    public void GetEntrance()
-    {
-        string prevStr = GameObject.FindObjectOfType<RoomGenerator>().NegateRoomType(PrevRoom.GetRoomType()).ToString();
-        string currentStr = GetRoomType().ToString();
-
-        string newStr = currentStr;
-
-        foreach (char item in prevStr)
-        {
-            newStr = newStr.Replace(item.ToString(), "");
+            if (!roomGenerator.SpawnNextRoom(door.GetComponent<Door>().Type, this, transform.position))
+            {
+                countFalse++;
+            }
+            else
+            {
+                Entrance = door.GetComponent<Door>().Type;
+            }
         }
 
-        Debug.Log(transform.name + " " + newStr);
+        canSpawn = false;
+
+        if(countFalse >= 2 && roomGenerator.CanCreateMoreRooms())
+        {
+            roomGenerator.ReplaceRoom(this);
+        }
     }
 }

@@ -1,41 +1,33 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RoomGenerator : MonoBehaviour
 {
     public GameObject Room;
-    public int MinRooms = 4;
-    public int MaxRooms = 10;
 
-    private int numRooms;
-    private int currentRoomCount = 0;
-    private Room startRoom, endRoom, prevRoom;
+    public int MinRooms = 4, MaxRooms = 10;
 
-    private Vector3[] positions = new Vector3[20];
+    private int selectedNumRooms, currentRoomNum = 0;
 
-    private LinkedList<RoomType> prevRoomTypes = new LinkedList<RoomType>();
+    private Room startRoom, endRoom;
+
+    private Vector3[] takenRoomPositions = new Vector3[20];
 
 
     void Start()
     {
-        //Debug.Log(positions.ToString());
-        FindNumRooms();
-        Debug.Log(numRooms);
-
-        startRoom = prevRoom = CreateRoom(RandomEnum<RoomType>(), Vector3.zero);
-        
-        //string currentRoomType = startRoom.GetRoomType().ToString();
-        //foreach (char type in currentRoomType)
-        //{
-        //    RoomType roomType = (RoomType)System.Enum.Parse(typeof(RoomType), type.ToString(), true);
-            
-        //}
-        
+        FindSelectedNumRooms();
+        Debug.Log(selectedNumRooms);
+        CreateStartRoom();
     }
 
-    private void FindNumRooms()
+    private void CreateStartRoom()
     {
-        numRooms = Random.Range(MinRooms, MaxRooms);
+        startRoom = CreateRoom(RandomEnum<RoomType>(), Vector3.zero);
+    }
+
+    private void FindSelectedNumRooms()
+    {
+        selectedNumRooms = Random.Range(MinRooms, MaxRooms);
     }
 
     public T RandomEnum<T>()
@@ -55,28 +47,40 @@ public class RoomGenerator : MonoBehaviour
         return currentValue;
     }
 
-    
+    public bool CanCreateMoreRooms()
+    {
+        return currentRoomNum < selectedNumRooms;
+    }
+
+    private void IncreaseRoomCount()
+    {
+        currentRoomNum++;
+    }
+
+    private void DecreaseRoomCount()
+    {
+        currentRoomNum--;
+    }
 
     private Room CreateRoom(RoomType type, Vector3 pos)
     {
-        //positions[(int)pos.x / 30][(int)pos.z / 30] = 1;
         Room currentRoom = Instantiate(Room, pos, Quaternion.identity, transform).GetComponent<Room>();
         currentRoom.SetRoomType(type);
-        currentRoomCount++;
-        currentRoom.transform.name = currentRoom.transform.name + " #" + currentRoomCount;
+        IncreaseRoomCount();
+        currentRoom.transform.name = currentRoom.transform.name + " #" + currentRoomNum;
         return currentRoom;
     }
 
     private bool isPosAvailable(Vector3 pos)
     {
-        foreach (Vector3 currentPos in positions)
+        foreach (Vector3 currentPos in takenRoomPositions)
         {
             if(currentPos == pos)
             {
                 return false;
             }
         }
-        positions[currentRoomCount] = pos;
+        takenRoomPositions[currentRoomNum] = pos;
         return true;
     }
 
@@ -114,46 +118,48 @@ public class RoomGenerator : MonoBehaviour
         }
     }
 
-    bool skipFirstFlag = true;
-    public void SpawnNextRoom(RoomType entrance, Room parent, Vector3 prevRoomPos)
+    bool isDeletedRoom = false;
+    public bool SpawnNextRoom(RoomType entrance, Room parent, Vector3 prevRoomPos)
     {
-        if (currentRoomCount < numRooms)
+        if (CanCreateMoreRooms())
         {
             Vector3 pos = prevRoomPos + GetNextRoomPosition(entrance);
             RoomType type = NegateRoomType(entrance);
-            RoomType newType;
+            RoomType newType = type;
 
-            do
+            if (currentRoomNum < selectedNumRooms - 2)
             {
-                newType = RandomEnum<RoomType>(type);
-            } while (newType == type);
-            if (isPosAvailable(pos))
+                do
+                {
+                    newType = RandomEnum<RoomType>(type);
+                } while (newType == type);
+            }
+            
+
+            if (isPosAvailable(pos) || isDeletedRoom)
             {
                 Room currentRoom = CreateRoom(newType, pos);
                 currentRoom.PrevRoom = parent;
-                prevRoom = currentRoom;
-                //currentRoom.Entrance = entrance;
-                currentRoom.GetEntrance();
 
-                if (!skipFirstFlag)
+                if(currentRoomNum == selectedNumRooms)
                 {
-                    prevRoomTypes.AddLast(entrance);
+                    endRoom = currentRoom;
                 }
-                skipFirstFlag = false;
 
-                
-            }
+                isDeletedRoom = false;
 
-            
-            
+                return true;
+            }    
         }
+
+        return false;
     }
 
-    private void Update()
+    public void ReplaceRoom(Room room)
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            Debug.Log(prevRoomTypes.Last.Previous.Previous.Value);
-        }
+        isDeletedRoom = true;
+        DecreaseRoomCount();
+        SpawnNextRoom(room.PrevRoom.Entrance, room.PrevRoom, room.PrevRoom.transform.position);
+        Destroy(room.gameObject);
     }
 }
