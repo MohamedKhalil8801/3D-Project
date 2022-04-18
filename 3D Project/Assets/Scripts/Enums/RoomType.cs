@@ -10,5 +10,10 @@ public enum RoomType
     FR,
     BL,
     BR,
-    LR
+    LR,
+    FBL,
+    FBR,
+    FLR,
+    BLR,
+    FBLR
 }

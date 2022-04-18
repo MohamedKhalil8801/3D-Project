@@ -10,7 +10,7 @@ public class RoomGenerator : MonoBehaviour
 
     private Room startRoom, endRoom;
 
-    private Vector3[] takenRoomPositions = new Vector3[20];
+    private Vector3[] takenRoomPositions = new Vector3[40];
 
 
     void Start()
@@ -119,7 +119,7 @@ public class RoomGenerator : MonoBehaviour
     }
 
     bool isDeletedRoom = false;
-    public bool SpawnNextRoom(RoomType entrance, Room parent, Vector3 prevRoomPos)
+    public int SpawnNextRoom(RoomType entrance, Room parent, Vector3 prevRoomPos)
     {
         if (CanCreateMoreRooms())
         {
@@ -127,7 +127,7 @@ public class RoomGenerator : MonoBehaviour
             RoomType type = NegateRoomType(entrance);
             RoomType newType = type;
 
-            if (currentRoomNum < selectedNumRooms - 2)
+            if (currentRoomNum < selectedNumRooms - 1)
             {
                 do
                 {
@@ -148,11 +148,15 @@ public class RoomGenerator : MonoBehaviour
 
                 isDeletedRoom = false;
 
-                return true;
+                return 0;
             }    
         }
+        else
+        {
+            return 2;
+        }
 
-        return false;
+        return 1;
     }
 
     public void ReplaceRoom(Room room)

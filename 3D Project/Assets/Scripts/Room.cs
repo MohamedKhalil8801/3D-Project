@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Room : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class Room : MonoBehaviour
     private RoomGenerator roomGenerator;
     private RoomType roomType;
     bool canSpawn = true;
+    private bool isDone = false;
 
     public void SetRoomType(RoomType type)
     {
@@ -86,6 +88,32 @@ public class Room : MonoBehaviour
                 ReplaceWallWithDoor(Door, ref Wall_L);
                 ReplaceWallWithDoor(Door, ref Wall_R);
                 break;
+            case RoomType.FBL:
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_L);
+                break;
+            case RoomType.FBR:
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_R);
+                break;
+            case RoomType.FLR:
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_R);
+                break;
+            case RoomType.BLR:
+                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_R);
+                break;
+            case RoomType.FBLR:
+                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(Door, ref Wall_R);
+                break;
             default:
                 break;
         }
@@ -109,9 +137,14 @@ public class Room : MonoBehaviour
         int countFalse = 0;
         foreach (GameObject door in doors)
         {
-            if (!roomGenerator.SpawnNextRoom(door.GetComponent<Door>().Type, this, transform.position))
+            int output = roomGenerator.SpawnNextRoom(door.GetComponent<Door>().Type, this, transform.position);
+            if (output != 0)
             {
                 countFalse++;
+                if(output == 2)
+                {
+                    //Debug.Log(name);
+                }
             }
             else
             {
