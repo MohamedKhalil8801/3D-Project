@@ -4,10 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Floor
-  - Wall
-  - OuterCorner
-  - Room
+  - Loose
+  - DeathBody
+  - Deathbody
   layers:
   - Default
   - TransparentFX
@@ -17,14 +16,14 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - FirstPerson
+  - ThirdPerson
+  - Projectile
+  - NonPlayer
+  - EffectToPlayer
+  - EffectFromPlayer
+  - ThirdPersonBarrier
+  - PostProcessing
   - 
   - 
   - 
