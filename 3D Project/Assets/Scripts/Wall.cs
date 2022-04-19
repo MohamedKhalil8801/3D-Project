@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Door : MonoBehaviour
+public class Wall : MonoBehaviour
 {
     [HideInInspector]
     public RoomType Type;

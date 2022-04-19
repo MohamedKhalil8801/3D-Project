@@ -1,37 +1,36 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 public class Room : MonoBehaviour
 {
-    
-    public GameObject Door;
+    [Header("References")]
+    [SerializeField]
+    private GameObject wall_F;
+    [SerializeField]
+    private GameObject wall_B;
+    [SerializeField]
+    private GameObject wall_L;
+    [SerializeField]
+    private GameObject wall_R;
 
-    public GameObject Wall_F;
-    public GameObject Wall_B;
-    public GameObject Wall_L;
-    public GameObject Wall_R;
-
-    private List<GameObject> doors = new List<GameObject>();
-
+    [HideInInspector]
     public Room PrevRoom;
+    [HideInInspector]
     public RoomType Entrance;
 
     private RoomGenerator roomGenerator;
+    private GameObject door;
+
+    private List<GameObject> doors = new List<GameObject>();
+
     private RoomType roomType;
+
     bool canSpawn = true;
-    private bool isDone = false;
 
-    public void SetRoomType(RoomType type)
+    private void Awake()
     {
-        roomType = type;
-        transform.name = "Room " + roomType;
-        ConfigureRoomType(roomType);
-    }
-
-    private void Start()
-    {
-        roomGenerator = transform.parent.GetComponent<RoomGenerator>();
+        roomGenerator = RoomGenerator.Instance;
+        door = roomGenerator.Door;
     }
 
     private void Update()
@@ -40,7 +39,24 @@ public class Room : MonoBehaviour
         {
             SpawnNextRoom();
         }
-        
+
+    }
+
+    public void InitRoom(RoomType type)
+    {
+        SetRoomType(type);
+        SetRoomName();
+        ConfigureRoomType(roomType);
+    }
+
+    private void SetRoomName()
+    {
+        transform.name = "Room " + roomType + " #" + roomGenerator.GetRoomCount();
+    }
+
+    private void SetRoomType(RoomType type)
+    {
+        roomType = type;
     }
 
     public RoomType GetRoomType()
@@ -53,108 +69,104 @@ public class Room : MonoBehaviour
         switch (type)
         {
             case RoomType.F:
-                ReplaceWallWithDoor(Door, ref Wall_F);
+                ReplaceWallWithDoor(ref wall_F);
                 break;
             case RoomType.B:
-                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(ref wall_B);
                 break;
             case RoomType.L:
-                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(ref wall_L);
                 break;
             case RoomType.R:
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.FB:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_B);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_B);
                 break;
             case RoomType.FL:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_L);
                 break;
             case RoomType.FR:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.BL:
-                ReplaceWallWithDoor(Door, ref Wall_B);
-                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(ref wall_B);
+                ReplaceWallWithDoor(ref wall_L);
                 break;
             case RoomType.BR:
-                ReplaceWallWithDoor(Door, ref Wall_B);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_B);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.LR:
-                ReplaceWallWithDoor(Door, ref Wall_L);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_L);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.FBL:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_B);
-                ReplaceWallWithDoor(Door, ref Wall_L);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_B);
+                ReplaceWallWithDoor(ref wall_L);
                 break;
             case RoomType.FBR:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_B);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_B);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.FLR:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_L);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_L);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.BLR:
-                ReplaceWallWithDoor(Door, ref Wall_B);
-                ReplaceWallWithDoor(Door, ref Wall_L);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_B);
+                ReplaceWallWithDoor(ref wall_L);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             case RoomType.FBLR:
-                ReplaceWallWithDoor(Door, ref Wall_F);
-                ReplaceWallWithDoor(Door, ref Wall_B);
-                ReplaceWallWithDoor(Door, ref Wall_L);
-                ReplaceWallWithDoor(Door, ref Wall_R);
+                ReplaceWallWithDoor(ref wall_F);
+                ReplaceWallWithDoor(ref wall_B);
+                ReplaceWallWithDoor(ref wall_L);
+                ReplaceWallWithDoor(ref wall_R);
                 break;
             default:
                 break;
         }
     }
 
-    private void ReplaceWallWithDoor(GameObject door, ref GameObject wall)
+    private void ReplaceWallWithDoor(ref GameObject wall)
     {
         string name = wall.name;
         Vector3 pos = wall.transform.position;
         Quaternion rot = wall.transform.rotation;
-        RoomType type = wall.GetComponent<Door>().Type;
+        RoomType type = wall.GetComponent<Wall>().Type;
         Destroy(wall);
         wall = Instantiate(door, pos, rot, gameObject.transform);
         wall.name = name;
-        wall.GetComponent<Door>().Type = type;
+        wall.GetComponent<Wall>().Type = type;
         doors.Add(wall);
     }
 
     public void SpawnNextRoom()
     {
         int countFalse = 0;
-        foreach (GameObject door in doors)
+        foreach (GameObject currentDoor in doors)
         {
-            int output = roomGenerator.SpawnNextRoom(door.GetComponent<Door>().Type, this, transform.position);
+            int output = roomGenerator.SpawnNextRoom(currentDoor.GetComponent<Wall>().Type, this, transform.position);
             if (output != 0)
             {
                 countFalse++;
-                if(output == 2)
-                {
-                    //Debug.Log(name);
-                }
             }
             else
             {
-                Entrance = door.GetComponent<Door>().Type;
+                Entrance = currentDoor.GetComponent<Wall>().Type;
             }
         }
 
         canSpawn = false;
 
-        if(countFalse >= 2 && roomGenerator.CanCreateMoreRooms())
+        if(countFalse >= doors.Count && roomGenerator.CanCreateMoreRooms())
         {
             roomGenerator.ReplaceRoom(this);
         }

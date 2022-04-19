@@ -2,22 +2,39 @@ using UnityEngine;
 
 public class RoomGenerator : MonoBehaviour
 {
-    public GameObject Room;
+    public static RoomGenerator Instance;
 
-    public int MinRooms = 4, MaxRooms = 10;
+    [Header("References")]
+    public GameObject Room;
+    public GameObject Wall;
+    public GameObject Door;
+
+    [Header("Settings")]
+    public int MinRooms = 10;
+    public int MaxRooms = 20;
 
     private int selectedNumRooms, currentRoomNum = 0;
 
     private Room startRoom, endRoom;
 
-    private Vector3[] takenRoomPositions = new Vector3[40];
+    private Vector3[] takenRoomPositions;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
+        InitTakenRoomPositionsArray();
         FindSelectedNumRooms();
-        Debug.Log(selectedNumRooms);
+        Debug.Log("Selected Number of Rooms " + selectedNumRooms);
         CreateStartRoom();
+    }
+
+    private void InitTakenRoomPositionsArray()
+    {
+        takenRoomPositions = new Vector3[MaxRooms];
     }
 
     private void CreateStartRoom()
@@ -52,6 +69,11 @@ public class RoomGenerator : MonoBehaviour
         return currentRoomNum < selectedNumRooms;
     }
 
+    public int GetRoomCount()
+    {
+        return currentRoomNum;
+    }
+
     private void IncreaseRoomCount()
     {
         currentRoomNum++;
@@ -64,10 +86,9 @@ public class RoomGenerator : MonoBehaviour
 
     private Room CreateRoom(RoomType type, Vector3 pos)
     {
-        Room currentRoom = Instantiate(Room, pos, Quaternion.identity, transform).GetComponent<Room>();
-        currentRoom.SetRoomType(type);
         IncreaseRoomCount();
-        currentRoom.transform.name = currentRoom.transform.name + " #" + currentRoomNum;
+        Room currentRoom = Instantiate(Room, pos, Quaternion.identity, transform).GetComponent<Room>();
+        currentRoom.InitRoom(type);
         return currentRoom;
     }
 
@@ -84,7 +105,7 @@ public class RoomGenerator : MonoBehaviour
         return true;
     }
 
-    public RoomType NegateRoomType(RoomType type)
+    public RoomType NegateEntranceType(RoomType type)
     {
         switch (type)
         {
@@ -124,7 +145,7 @@ public class RoomGenerator : MonoBehaviour
         if (CanCreateMoreRooms())
         {
             Vector3 pos = prevRoomPos + GetNextRoomPosition(entrance);
-            RoomType type = NegateRoomType(entrance);
+            RoomType type = NegateEntranceType(entrance);
             RoomType newType = type;
 
             if (currentRoomNum < selectedNumRooms - 1)
@@ -161,9 +182,13 @@ public class RoomGenerator : MonoBehaviour
 
     public void ReplaceRoom(Room room)
     {
+        //Debug.Log("Working on " + room.name);
         isDeletedRoom = true;
         DecreaseRoomCount();
-        SpawnNextRoom(room.PrevRoom.Entrance, room.PrevRoom, room.PrevRoom.transform.position);
+        if (room.PrevRoom)
+        {
+            SpawnNextRoom(room.PrevRoom.Entrance, room.PrevRoom, room.PrevRoom.transform.position);
+        }
         Destroy(room.gameObject);
     }
 }

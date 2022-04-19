@@ -49,11 +49,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3608dbb085cdf19469c5f3290a021aad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Door: {fileID: 5504749394915970682, guid: 2457a5b66a5b65f42a5c25c519279ffb, type: 3}
-  Wall_F: {fileID: 8137540037523033997}
-  Wall_B: {fileID: 4882480948767175474}
-  Wall_L: {fileID: 8137540037966115776}
-  Wall_R: {fileID: 8137540037982243797}
+  roomGenerator: {fileID: 0}
+  wall_F: {fileID: 8137540037523033997}
+  wall_B: {fileID: 4882480948767175474}
+  wall_L: {fileID: 8137540037966115776}
+  wall_R: {fileID: 8137540037982243797}
   PrevRoom: {fileID: 0}
   Entrance: 0
 --- !u!1 &4882480948244489759
