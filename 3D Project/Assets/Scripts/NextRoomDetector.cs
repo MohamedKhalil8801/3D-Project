@@ -22,7 +22,7 @@ public class NextRoomDetector : MonoBehaviour
 
     IEnumerator Detect()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1);
         //Debug.DrawRay(transform.TransformPoint(new Vector3(15, 4, -0.2f)), transform.TransformDirection(Vector3.forward), Color.red, 120);
         //Debug.DrawRay(transform.TransformPoint(new Vector3(15, 2, -0.2f)), transform.TransformDirection(Vector3.forward), Color.red, 120);
 

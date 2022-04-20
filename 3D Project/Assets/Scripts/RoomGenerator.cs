@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public class RoomGenerator : MonoBehaviour
 {
@@ -168,7 +169,7 @@ public class RoomGenerator : MonoBehaviour
                 if(currentRoomNum == selectedNumRooms)
                 {
                     endRoom = currentRoom;
-                    UpdateNavMesh();
+                    //StartCoroutine(UpdateNavMesh());
                 }
 
                 isDeletedRoom = false;
@@ -196,8 +197,9 @@ public class RoomGenerator : MonoBehaviour
         Destroy(room.gameObject);
     }
 
-    private void UpdateNavMesh()
+    IEnumerator UpdateNavMesh()
     {
+        yield return new WaitForSeconds(5);
         surfaces = gameObject.GetComponentsInChildren<NavMeshSurface>();
         for (int i = 0; i < surfaces.Length; i++)
         {
